@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: process.env.CLERK_ISSUER_URL,
+      domain: 'https://open-toucan-40.clerk.accounts.dev',
       applicationID: 'convex',
     },
   ],

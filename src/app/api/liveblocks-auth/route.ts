@@ -5,26 +5,41 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { api } from '@/../convex/_generated/api';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL);
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const liveblocks = new Liveblocks({
-  secret: process.env.LIVEBLOCKS_SECRET_KEY,
+  secret: process.env.LIVEBLOCKS_SECRET_KEY!,
 });
 
 export async function POST(req: NextRequest) {
   const { sessionClaims } = await auth();
   const user = await currentUser();
 
-  if (!sessionClaims || !user) return new NextResponse('Unauthorized!', { status: 401 });
+  if (!sessionClaims || !user) {
+    return new NextResponse('Unauthorized!', { status: 401 });
+  }
 
   const { room } = await req.json();
   const document = await convex.query(api.documents.getById, { id: room });
 
-  if (!document) return new NextResponse('Unauthorized!', { status: 401 });
+  if (!document) {
+    return new NextResponse('Unauthorized!', { status: 401 });
+  }
+
+  // Safely extract organization ID from session claims
+  const orgId = (sessionClaims as any)?.o?.id as string | undefined;
+
+  console.log({
+    documentOrg: document.organizationId,
+    userOrg: orgId,
+    sessionClaims,
+  });
 
   const isOwner = document.ownerId === user.id;
-  const isOrganizationMember = !!(document.organizationId && document.organizationId === sessionClaims.org_id);
+  const isOrganizationMember = !!(document.organizationId && document.organizationId === orgId);
 
-  if (!isOwner && !isOrganizationMember) return new NextResponse('Unauthorized!', { status: 401 });
+  if (!isOwner && !isOrganizationMember) {
+    return new NextResponse('Unauthorized!', { status: 401 });
+  }
 
   const name = user.fullName ?? user.primaryEmailAddress?.emailAddress ?? 'Anonymous';
   const nameToNumber = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
