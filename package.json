@@ -82,7 +82,7 @@
     "@liveblocks/client": "^2.24.1",
     "@liveblocks/node": "^2.12.2",
     "@liveblocks/react": "^2.16.0",
-    "@liveblocks/react-tiptap": "^2.16.0",
+    "@liveblocks/react-tiptap": "^2.24.1",
     "@liveblocks/react-ui": "^2.16.0",
     "@liveblocks/yjs": "^2.24.1",
     "@radix-ui/react-alert-dialog": "^1.1.4",
